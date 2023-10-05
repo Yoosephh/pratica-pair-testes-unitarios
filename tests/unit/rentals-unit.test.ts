@@ -139,7 +139,34 @@ describe("Rentals Service Unit Tests", () => {
   });
 
   it("/GET getRentalById should fail if rental does not exists", async () => {
-    jest.spyOn()
-    const promise = await rentalsService.getRentalById(1)
-  })
+    jest
+      .spyOn(rentalsRepository, "getRentalById")
+      .mockImplementationOnce((): any => {
+        return null;
+      });
+    const promise = rentalsService.getRentalById(1);
+    expect(promise).rejects.toEqual({
+      name: "NotFoundError",
+      message: "Rental not found.",
+    });
+  });
+
+  it("/GET Get rental by id should return a rental", async () => {
+    const rental1 = {
+      id: faker.number.int(),
+      date: faker.date.past(),
+      endDate: faker.date.future(),
+      userId: 1,
+      closed: true,
+    };
+
+    jest
+      .spyOn(rentalsRepository, "getRentalById")
+      .mockImplementationOnce((): any => {
+        return rental1;
+      });
+
+    const promise = await rentalsService.getRentalById(rental1.id);
+    expect(promise).toEqual(rental1);
+  });
 });
